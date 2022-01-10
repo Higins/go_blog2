@@ -2,6 +2,7 @@ package blogUsecase
 
 import (
 	"encoding/json"
+	"github.com/gin-gonic/gin"
 )
 
 struct BlogUsecase struct {

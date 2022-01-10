@@ -27,11 +27,12 @@ func main() {
 	})
 	fmt.Println("Connection Opened to Database")
 
-	InitServiceWithDependencies(gormDB)
+	InitServiceWithDependencies(gormDB, c gin.Context)
 	r.Run(":8080")
 }
 
-func InitServiceWithDependencies(gormDB *gorm.DB) error {
-
+func InitServiceWithDependencies(gormDB *gorm.DB, gin *gin.Context) error {
+	blogRespository := blogRespository.New(gormDB)
+	blogUsecase := blogUsecase.New(gin)
 	return nil
 }
