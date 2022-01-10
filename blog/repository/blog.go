@@ -20,10 +20,10 @@ func New(db *gorm.DB) *Blog {
 func (b *Blog) Save(post Blog) error {
 	return b.db.DB.Create(&post).Error
 }
-func (b *Blog) FindAll(post Blog, keyword string) {
+func (b *Blog) FindAll() *Blog {
 	blog := make([]Blog, 0)
 	b.db.Find(&blog)
-	c.JSON(blog)
+	return blog
 }
 func (b *Blog) Update(post Blog) error {
 	return b.db.DB.Save(&post).Error

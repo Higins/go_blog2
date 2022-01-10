@@ -10,9 +10,13 @@ import (
 	"gorm.io/gorm"
 )
 
+var (
+	gormDB *gorm.DB
+	err    error
+)
+
 func main() {
-	var err error
-	gormDB, err := gorm.Open(sqlite.Open("blog.db"), &gorm.Config{})
+	var gormDB, err = gorm.Open(sqlite.Open("blog.db"), &gorm.Config{})
 
 	if err != nil {
 		fmt.Println("failed to connect database")
