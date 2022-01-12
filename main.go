@@ -2,37 +2,40 @@ package main
 
 import (
 	"fmt"
-	"net/http"
-
-	"github.com/gin-gonic/gin"
+	blogRespository "github.com/Higins/go_blog2/blog/repository"
+	blogUsecase "github.com/Higins/go_blog2/blog/usecase"
+	"github.com/Higins/go_blog2/domain"
+	"github.com/Higins/go_blog2/router"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
-)
-
-var (
-	gormDB *gorm.DB
-	err    error
+	"log"
 )
 
 func main() {
-	var gormDB, err = gorm.Open(sqlite.Open("blog.db"), &gorm.Config{})
-
+	gormDB, err := gorm.Open(sqlite.Open("blog.db"), &gorm.Config{})
 	if err != nil {
 		fmt.Println("failed to connect database")
+		panic(err)
 	}
-	r := gin.New()
-	r.GET("/", func(c *gin.Context) {
-		c.String(http.StatusOK, "ohai")
-	})
 	fmt.Println("Connection Opened to Database")
-
-	InitServiceWithDependencies(gormDB, c gin.Context)
-	r.Run(":8080")
+	err = gormDB.AutoMigrate(domain.Blog{})
+	fmt.Println(err)
+	blogRouter := InitServiceWithDependencies(gormDB)
+	// create error group to detect failed services
+	errorGroup := make(chan error, 1)
+	go func() {
+		errorGroup <- blogRouter.InitApi().Run(":8080")
+	}()
+	if err := <-errorGroup; err != nil {
+		// fatal trigger exit 1
+		log.Fatal(err)
+	}
 }
 
-func InitServiceWithDependencies(gormDB *gorm.DB, gin *gin.Context) error {
-	blogRespository := blogRespository.New(gormDB)
-	blogUsecase := blogUsecase.New(gin)
-	return nil
+func InitServiceWithDependencies(gormDB *gorm.DB) *router.Router {
+	blogRespo := blogRespository.NewBlogRepository(gormDB)
+	blogUseCase := blogUsecase.NewBlogUsecase(blogRespo)
+	blogRouter := router.NewRouter(blogUseCase)
+	return blogRouter
 }

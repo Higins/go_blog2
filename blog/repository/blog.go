@@ -1,30 +1,48 @@
 package blogRespository
 
 import (
+	"fmt"
+	"github.com/Higins/go_blog2/domain"
 	"gorm.io/gorm"
 )
 
-type Blog struct {
-	gorm.Model
-	Title string `json:"title"`
-	Body  string `json:"body"`
+type blogRepository struct {
 	db    *gorm.DB
 }
 
-func New(db *gorm.DB) *Blog {
-	return &Blog{
+func NewBlogRepository(db *gorm.DB) domain.BlogRepository {
+	return &blogRepository{
 		db: db,
 	}
 }
 
-func (b *Blog) Save(post Blog) error {
-	return b.db.DB.Create(&post).Error
+func (b *blogRepository) Save(post domain.Blog) (domain.Blog, error) {
+	var err error
+	if post.ID > 0 {
+		err = b.db.Create(&post).Error
+	} else {
+		err = b.db.Save(&post).Error
+	}
+	if err != nil {
+		fmt.Println(err)
+		return domain.Blog{}, err
+	}
+	return post, nil
 }
-func (b *Blog) FindAll() *Blog {
-	blog := make([]Blog, 0)
-	b.db.Find(&blog)
-	return blog
+func (b *blogRepository) FindAll() (blogs []domain.Blog, err error) {
+	err = b.db.Find(&blogs).Error
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	return blogs, nil
 }
-func (b *Blog) Update(post Blog) error {
-	return b.db.DB.Save(&post).Error
+
+func (b *blogRepository) GetBlogById(blogId int) (blog domain.Blog, err error) {
+	err = b.db.Where("id = ?", blogId).First(&blog).Error
+	if err != nil {
+		fmt.Println(err)
+		return domain.Blog{}, err
+	}
+	return blog, nil
 }
