@@ -9,15 +9,20 @@ import (
 type blogRepository struct {
 	db    *gorm.DB
 }
-
+// blog repository példány létrehozása (constructor) függvény, ami interface-t ad vissza
+// Ha van különbség a blogRepository struct-ra ráaggatott publikus függvények és az interface között
+// Az IDE is sipákol!
 func NewBlogRepository(db *gorm.DB) domain.BlogRepository {
 	return &blogRepository{
 		db: db,
 	}
 }
-
+// Repository mindig a DB adattípusát adja vissza, ezzel kezd valamit a usecase réteg
 func (b *blogRepository) Save(post domain.Blog) (domain.Blog, error) {
 	var err error
+	// Ez így egyértelmű a gorm.io-nak, hogy mit kell kezdenie az adott adattal
+	// Van, hogy ha csak Save-et használsz, hibára fut, amikor újat akarsz létrehozni
+	// Egy Where feltételre szokott panaszkodni
 	if post.ID > 0 {
 		err = b.db.Create(&post).Error
 	} else {
