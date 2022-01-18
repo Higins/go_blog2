@@ -2,13 +2,15 @@ package blogRespository
 
 import (
 	"fmt"
+
 	"github.com/Higins/go_blog2/domain"
 	"gorm.io/gorm"
 )
 
 type blogRepository struct {
-	db    *gorm.DB
+	db *gorm.DB
 }
+
 // blog repository példány létrehozása (constructor) függvény, ami interface-t ad vissza
 // Ha van különbség a blogRepository struct-ra ráaggatott publikus függvények és az interface között
 // Az IDE is sipákol!
@@ -17,6 +19,7 @@ func NewBlogRepository(db *gorm.DB) domain.BlogRepository {
 		db: db,
 	}
 }
+
 // Repository mindig a DB adattípusát adja vissza, ezzel kezd valamit a usecase réteg
 func (b *blogRepository) Save(post domain.Blog) (domain.Blog, error) {
 	var err error
@@ -35,7 +38,7 @@ func (b *blogRepository) Save(post domain.Blog) (domain.Blog, error) {
 	return post, nil
 }
 func (b *blogRepository) FindAll() (blogs []domain.Blog, err error) {
-	err = b.db.Find(&blogs).Error
+	err = b.db.Preload("Comments").Find(&blogs).Error
 	if err != nil {
 		fmt.Println(err)
 		return nil, err

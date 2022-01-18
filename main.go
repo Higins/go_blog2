@@ -2,14 +2,17 @@ package main
 
 import (
 	"fmt"
+	"log"
+
 	blogRespository "github.com/Higins/go_blog2/blog/repository"
 	blogUsecase "github.com/Higins/go_blog2/blog/usecase"
+	commentRespository "github.com/Higins/go_blog2/comment/repository"
+	commentUsecase "github.com/Higins/go_blog2/comment/usecase"
 	"github.com/Higins/go_blog2/domain"
 	"github.com/Higins/go_blog2/router"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
-	"log"
 )
 
 func main() {
@@ -46,6 +49,8 @@ func InitServiceWithDependencies(gormDB *gorm.DB) *router.Router {
 	// Elkészítjük a blog usecase-t, injektáljuk a blog repository-t
 	blogUseCase := blogUsecase.NewBlogUsecase(blogRespo)
 	// Blog usecase-t injektáljuk a routerbe
-	blogRouter := router.NewRouter(blogUseCase)
+	commentRepository := commentRespository.NewBlogRepository(gormDB)
+	commentUsecase := commentUsecase.NewCommentUsecase(commentRepository)
+	blogRouter := router.NewRouter(blogUseCase, commentUsecase)
 	return blogRouter
 }
