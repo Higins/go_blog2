@@ -6,7 +6,6 @@ import (
 
 	"github.com/Higins/go_blog2/domain"
 	"github.com/gin-gonic/gin"
-	"github.com/appleboy/gin-jwt"
 )
 
 type Router struct {
@@ -15,7 +14,7 @@ type Router struct {
 }
 
 // Létrehozzuk a router példányt, ami pointert ad vissza (nem interface-t)
-func NewRouter(blogUseCase domain.BlogUseCase, commentUsecase) *Router {
+func NewRouter(blogUseCase domain.BlogUseCase, commentUsecase domain.CommentUsecase) *Router {
 	return &Router{
 		blogUseCase: blogUseCase,
 		commentUseCase: commentUsecase,
@@ -28,7 +27,7 @@ func (r *Router) InitApi() *gin.Engine {
 	server := gin.New()
 	server.GET("/", r.GetBlogs)
 	server.POST("/saveblog", r.SaveBlog)
-	server.POST("/comment",r.SaveComment)
+	server.POST("/comment", r.SaveComment)
 	return server
 }
 
@@ -65,7 +64,6 @@ func (r *Router) SaveComment(c *gin.Context) {
 		return
 	}
 	err = r.commentUseCase.SaveComment(comment)
-	err = r.blogUseCase.SaveBlog(blog)
 	if err != nil {
 		fmt.Println(err)
 		c.AbortWithError(http.StatusBadRequest, err)

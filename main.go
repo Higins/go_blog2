@@ -25,7 +25,7 @@ func main() {
 	}
 	fmt.Println("Connection Opened to Database")
 	// Ez egy automigrálás, amivel létrehozzuk, ha nem létezik, az adatbázis táblát
-	err = gormDB.AutoMigrate(domain.Blog{})
+	err = gormDB.AutoMigrate(domain.Blog{}, domain.Comment{})
 	fmt.Println(err)
 	// Létrehozzuk a router példányt
 	blogRouter := InitServiceWithDependencies(gormDB)
@@ -46,11 +46,13 @@ func main() {
 func InitServiceWithDependencies(gormDB *gorm.DB) *router.Router {
 	// Elkészítjük a blog repository-t, injektáljuk a db kapcsolatot
 	blogRespo := blogRespository.NewBlogRepository(gormDB)
+	commentRepository := commentRespository.NewCommentRepository(gormDB)
+
 	// Elkészítjük a blog usecase-t, injektáljuk a blog repository-t
 	blogUseCase := blogUsecase.NewBlogUsecase(blogRespo)
-	// Blog usecase-t injektáljuk a routerbe
-	commentRepository := commentRespository.NewBlogRepository(gormDB)
 	commentUsecase := commentUsecase.NewCommentUsecase(commentRepository)
+
+	// Blog usecase-t injektáljuk a routerbe
 	blogRouter := router.NewRouter(blogUseCase, commentUsecase)
 	return blogRouter
 }
