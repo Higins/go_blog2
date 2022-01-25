@@ -38,7 +38,10 @@ func (u *userUsecase) AuthMiddleware(user domain.User) {
 			if err := c.ShouldBind(&user); err != nil {
 				return "", jwt.ErrMissingLoginValues
 			}
-			u.Login(user)
+			user,err = u.Login(user)
+			if err != nil {
+				return user
+			}
 
 			return nil, jwt.ErrFailedAuthentication
 		},
