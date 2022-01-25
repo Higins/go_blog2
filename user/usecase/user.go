@@ -18,7 +18,7 @@ func NewUserUsecase(user domain.UserRepository) domain.UserRepository {
 	}
 }
 
-func (u *userUsecase) AuthMiddleware(user domain.User) {
+func (u *userUsecase) AuthMiddleware(user domain.User) (jwt.GinJWTMiddleware,error) {
 
 	return authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
 		Realm:      "test zone",
