@@ -10,6 +10,8 @@ import (
 	commentUsecase "github.com/Higins/go_blog2/comment/usecase"
 	"github.com/Higins/go_blog2/domain"
 	"github.com/Higins/go_blog2/router"
+	userRespository "github.com/Higins/go_blog2/user/repository"
+	userUsecase "github.com/Higins/go_blog2/user/usecase"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -47,12 +49,14 @@ func InitServiceWithDependencies(gormDB *gorm.DB) *router.Router {
 	// Elkészítjük a blog repository-t, injektáljuk a db kapcsolatot
 	blogRespo := blogRespository.NewBlogRepository(gormDB)
 	commentRepository := commentRespository.NewCommentRepository(gormDB)
+	userRepository := userRespository.NewUserRepository(gormDB)
 
 	// Elkészítjük a blog usecase-t, injektáljuk a blog repository-t
 	blogUseCase := blogUsecase.NewBlogUsecase(blogRespo)
 	commentUsecase := commentUsecase.NewCommentUsecase(commentRepository)
+	userUsecase := userUsecase.NewUserUsecase(userRepository)
 
 	// Blog usecase-t injektáljuk a routerbe
-	blogRouter := router.NewRouter(blogUseCase, commentUsecase)
+	blogRouter := router.NewRouter(blogUseCase, commentUsecase, userUsecase)
 	return blogRouter
 }

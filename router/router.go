@@ -11,13 +11,15 @@ import (
 type Router struct {
 	blogUseCase    domain.BlogUseCase
 	commentUseCase domain.CommentUsecase
+	userUsecase    domain.UserUsecase
 }
 
 // Létrehozzuk a router példányt, ami pointert ad vissza (nem interface-t)
-func NewRouter(blogUseCase domain.BlogUseCase, commentUsecase domain.CommentUsecase) *Router {
+func NewRouter(blogUseCase domain.BlogUseCase, commentUsecase domain.CommentUsecase, userUsecase domain.UserUsecase) *Router {
 	return &Router{
-		blogUseCase: blogUseCase,
+		blogUseCase:    blogUseCase,
 		commentUseCase: commentUsecase,
+		userUsecase:    userUsecase,
 	}
 }
 
@@ -84,4 +86,8 @@ func (r *Router) GetBlogs(c *gin.Context) {
 	// Ha minden OK, a státusz 200, és JSON adatokkal térünk vissza
 	c.JSON(http.StatusOK, blogs)
 	return
+}
+
+func (r *Router) Login(c *gin.Context) {
+
 }
