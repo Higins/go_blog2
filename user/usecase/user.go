@@ -10,21 +10,23 @@ import (
 )
 
 type userUsecase struct {
-	userRepository domain.userRepository
+	userRepository domain.UserRepository
 }
-func NewUserUsecase(user domain.UserRepository) domain.UserRepository {
-	return &userRepository{
+
+func NewUserUsecase(user domain.UserRepository) domain.UserUsecase {
+	return &userUsecase{
 		userRepository: user,
 	}
 }
 
-func (u *userUsecase) AuthMiddleware(user domain.User) (user domain.User,error) {
-
-	 jwt.New(&jwt.GinJWTMiddleware{
-		Realm:      "test zone",
-		Key:        []byte("secret key"),
-		Timeout:    time.Hour,
-		MaxRefresh: time.Hour,
+func (u *userUsecase) authMiddleware(user domain.UserApi) (userDomain domain.User, err error) {
+	var identityKey = "id"
+	jwt.New(&jwt.GinJWTMiddleware{
+		Realm:       "test zone",
+		Key:         []byte("secret key"),
+		Timeout:     time.Hour,
+		MaxRefresh:  time.Hour,
+		IdentityKey: identityKey,
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
 			if v, ok := data.(*domain.User); ok {
 				return jwt.MapClaims{
@@ -38,10 +40,7 @@ func (u *userUsecase) AuthMiddleware(user domain.User) (user domain.User,error) 
 			if err := c.ShouldBind(&user); err != nil {
 				return "", jwt.ErrMissingLoginValues
 			}
-			user,err = u.Login(user)
-			if err != nil {
-				return user
-			}
+			err = u.Login(user)
 
 			return nil, jwt.ErrFailedAuthentication
 		},
@@ -67,4 +66,12 @@ func (u *userUsecase) AuthMiddleware(user domain.User) (user domain.User,error) 
 		log.Fatal("JWT Error:" + err.Error())
 	}
 
+	return userDomain, nil
+}
+func (u *userUsecase) Login(userApi domain.UserApi) error {
+	_, err := u.authMiddleware(userApi)
+	if err != nil {
+		log.Fatal("Login error")
+	}
+	return nil
 }

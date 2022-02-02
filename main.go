@@ -36,7 +36,7 @@ func main() {
 	// Egy go routine-ban futtatjuk a routert
 	go func() {
 		// Futtatjuk a routert a 8080-as porton, ha bármi hiba adódik, amit a router (gin engine) elkap, küldjük az error channelbe
-		errorGroup <- blogRouter.InitApi().Run(":8080")
+		errorGroup <- blogRouter.InitApi().Run(":8089")
 	}()
 	// Bármiféle hiba kerül az error channelbe, logoljuk
 	if err := <-errorGroup; err != nil {

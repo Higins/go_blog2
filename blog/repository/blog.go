@@ -38,7 +38,7 @@ func (b *blogRepository) Save(post domain.Blog) (domain.Blog, error) {
 	return post, nil
 }
 func (b *blogRepository) FindAll() (blogs []domain.Blog, err error) {
-	err = b.db.Preload("Comments").Find(&blogs).Error
+	err = b.db.Find(&blogs).Error
 	if err != nil {
 		fmt.Println(err)
 		return nil, err

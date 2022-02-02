@@ -5,17 +5,17 @@ import (
 	"gorm.io/gorm"
 )
 
-type userRepository struct {
+type UserRepository struct {
 	db *gorm.DB
 }
 
 func NewUserRepository(db *gorm.DB) domain.UserRepository {
-	return &userRepository{
+	return &UserRepository{
 		db: db,
 	}
 }
 
-func (u *userRepository) Login(user domain.User) (domain.User, error) {
+func (u *UserRepository) Login(user domain.User) (domain.User, error) {
 	if user.Username == "admin" && user.Password == "admin" {
 		return domain.User{
 			Username: user.Username,
