@@ -47,7 +47,7 @@ func (uc *userUsecase) authMiddleware(user domain.UserApi) (userDomain domain.Us
 			return nil, jwt.ErrFailedAuthentication
 		},
 		Authorizator: func(data interface{}, c *gin.Context) bool {
-			if v, ok := data.(*domain.User); ok && v.Username == "admin" {
+			if _, ok := data.(*domain.User); ok {
 				return true
 			}
 			return false
