@@ -30,7 +30,7 @@ func (r *Router) InitApi() *gin.Engine {
 	server.GET("/", r.GetBlogs)
 	server.POST("/saveblog", r.SaveBlog)
 	server.POST("/comment", r.SaveComment)
-	server.POST("/login",r.Login)
+	server.POST("/login", r.Login)
 	return server
 }
 
@@ -97,12 +97,8 @@ func (r *Router) Login(c *gin.Context) {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
-	err = r.userUsecase.Login(user)
-	if err != nil {
-		fmt.Println(err)
-		c.AbortWithError(http.StatusBadRequest, err)
-		return
-	}
-	c.Status(http.StatusOK)
+	userData := r.userUsecase.Login(user)
+
+	c.JSON(http.StatusOK, userData)
 	return
 }

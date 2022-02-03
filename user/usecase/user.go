@@ -7,6 +7,7 @@ import (
 	"github.com/Higins/go_blog2/domain"
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type userUsecase struct {
@@ -19,7 +20,7 @@ func NewUserUsecase(user domain.UserRepository) domain.UserUsecase {
 	}
 }
 
-func (u *userUsecase) authMiddleware(user domain.UserApi) (userDomain domain.User, err error) {
+func (uc *userUsecase) authMiddleware(user domain.UserApi) (userDomain domain.User, err error) {
 	var identityKey = "id"
 	jwt.New(&jwt.GinJWTMiddleware{
 		Realm:       "test zone",
@@ -40,7 +41,8 @@ func (u *userUsecase) authMiddleware(user domain.UserApi) (userDomain domain.Use
 			if err := c.ShouldBind(&user); err != nil {
 				return "", jwt.ErrMissingLoginValues
 			}
-			err = u.Login(user)
+
+			uc.Login(user)
 
 			return nil, jwt.ErrFailedAuthentication
 		},
@@ -48,7 +50,6 @@ func (u *userUsecase) authMiddleware(user domain.UserApi) (userDomain domain.Use
 			if v, ok := data.(*domain.User); ok && v.Username == "admin" {
 				return true
 			}
-
 			return false
 		},
 		Unauthorized: func(c *gin.Context, code int, message string) {
@@ -68,10 +69,32 @@ func (u *userUsecase) authMiddleware(user domain.UserApi) (userDomain domain.Use
 
 	return userDomain, nil
 }
-func (u *userUsecase) Login(userApi domain.UserApi) error {
-	_, err := u.authMiddleware(userApi)
+func (uc *userUsecase) Login(userApi domain.UserApi) (userDomain domain.User) {
+	userDomain, err := uc.authMiddleware(userApi)
 	if err != nil {
-		log.Fatal("Login error")
+		log.Fatal("JWT Error:" + err.Error())
+	}
+	return userDomain
+}
+func (uc *userUsecase) Registration(user domain.User) error {
+	var userDomain domain.User
+	hashedPass, err := encryptPassword(user.Password)
+	if err != nil {
+		log.Printf("reg error: %s", err.Error())
+	}
+	userDomain.Password = hashedPass
+	userDomain.Username = user.Username
+	_, err = uc.userRepository.Login(userDomain)
+	if err != nil {
+		return err
 	}
 	return nil
+}
+func encryptPassword(password string) (string, error) {
+	bytePass := []byte(password)
+	hashedPassword, err := bcrypt.GenerateFromPassword(bytePass, bcrypt.DefaultCost)
+	if err != nil {
+		log.Printf("ERROR:EncryptPassword: %s", err.Error())
+	}
+	return string(hashedPassword), err
 }

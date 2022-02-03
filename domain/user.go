@@ -17,7 +17,9 @@ type UserApi struct {
 
 type UserRepository interface {
 	Login(user User) (User, error)
+	Registration(user User) (User, error)
 }
 type UserUsecase interface {
-	Login(user UserApi) error
+	Login(user UserApi) User
+	Registration(user User) error
 }
