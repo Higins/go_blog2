@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"github.com/stretchr/testify/mock"
 	"gorm.io/gorm"
 )
 
@@ -22,4 +23,13 @@ type CommentRepository interface {
 
 type CommentUsecase interface {
 	SaveComment(comment CommentApi) error
+}
+
+type MockCommentRepository struct {
+	mock.Mock
+}
+
+func (m *MockCommentRepository) Save(comment Comment) (Comment, error) {
+	args := m.Called(comment)
+	return args.Get(0).(Comment), args.Error(1)
 }

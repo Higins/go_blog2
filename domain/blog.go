@@ -1,8 +1,8 @@
 package domain
 
 import (
-	"gorm.io/gorm"
 	"github.com/stretchr/testify/mock"
+	"gorm.io/gorm"
 )
 
 // A blog DB adatstruktúra
@@ -32,17 +32,21 @@ type BlogUseCase interface {
 	SaveBlog(blog BlogApi) error
 	AllBlog() (blogs []BlogApi, err error)
 }
-// NINCS KÉSZ!
+
 type MockBlogRepository struct {
 	mock.Mock
 }
 
-func(m *MockBlogRepository) Save(post Blog) (Blog, error) {
+func (m *MockBlogRepository) Save(post Blog) (Blog, error) {
 	args := m.Called(post)
 	return args.Get(0).(Blog), args.Error(1)
 }
 
-func(m *MockBlogRepository) FindAll() ([]Blog, error) {
+func (m *MockBlogRepository) FindAll() ([]Blog, error) {
 	args := m.Called()
 	return args.Get(0).([]Blog), args.Error(1)
+}
+func (m *MockBlogRepository) GetBlogById(blogId int) (blog Blog, err error) {
+	args := m.Called(blogId)
+	return args.Get(0).(Blog), args.Error(1)
 }
