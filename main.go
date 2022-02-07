@@ -27,7 +27,7 @@ func main() {
 	}
 	fmt.Println("Connection Opened to Database")
 	// Ez egy automigrálás, amivel létrehozzuk, ha nem létezik, az adatbázis táblát
-	err = gormDB.AutoMigrate(domain.Blog{}, domain.Comment{})
+	err = gormDB.AutoMigrate(domain.Blog{}, domain.Comment{}, domain.User{})
 	fmt.Println(err)
 	// Létrehozzuk a router példányt
 	blogRouter := InitServiceWithDependencies(gormDB)
