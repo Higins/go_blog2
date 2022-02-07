@@ -47,12 +47,12 @@ func main() {
 
 func InitServiceWithDependencies(gormDB *gorm.DB) *router.Router {
 	// Elkészítjük a blog repository-t, injektáljuk a db kapcsolatot
-	blogRespo := blogRespository.NewBlogRepository(gormDB)
+	blogRepository := blogRespository.NewBlogRepository(gormDB)
 	commentRepository := commentRespository.NewCommentRepository(gormDB)
 	userRepository := userRespository.NewUserRepository(gormDB)
 
 	// Elkészítjük a blog usecase-t, injektáljuk a blog repository-t
-	blogUseCase := blogUsecase.NewBlogUsecase(blogRespo)
+	blogUseCase := blogUsecase.NewBlogUsecase(blogRepository)
 	commentUsecase := commentUsecase.NewCommentUsecase(commentRepository)
 	userUsecase := userUsecase.NewUserUsecase(userRepository)
 
