@@ -1,10 +1,10 @@
-package blogUsecase
+package BlogUsecase
 
 import (
 	"github.com/Higins/go_blog2/domain"
 )
 
-type blogUsecase struct {
+type BlogUsecase struct {
 	blogRepository domain.BlogRepository
 }
 
@@ -12,13 +12,13 @@ type blogUsecase struct {
 // Ha van különbség a blogUsecase struct-ra ráaggatott publikus függvények és az interface között
 // Az IDE is sipákol!
 func NewBlogUsecase(blog domain.BlogRepository) domain.BlogUseCase {
-	return &blogUsecase{
+	return &BlogUsecase{
 		blogRepository: blog,
 	}
 }
 
 // Az új blog létrehozása és egy blog szerkesztését érdemes egy függvénybe tenni
-func (u *blogUsecase) SaveBlog(blog domain.BlogApi) error {
+func (u *BlogUsecase) SaveBlog(blog domain.BlogApi) error {
 	var blogDb domain.Blog
 	if blog.ID > 0 {
 		blogDb, err := u.blogRepository.GetBlogById(blog.ID)
@@ -36,7 +36,7 @@ func (u *blogUsecase) SaveBlog(blog domain.BlogApi) error {
 }
 
 // Itt API-s blog típust adunk vissza
-func (u *blogUsecase) AllBlog() (blogs []domain.BlogApi, err error) {
+func (u *BlogUsecase) AllBlog() (blogs []domain.BlogApi, err error) {
 	allBlogs, err := u.blogRepository.FindAll()
 	if err != nil {
 		return nil, err
