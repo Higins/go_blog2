@@ -1,32 +1,64 @@
 package blogRespository
 
 import (
-	"regexp"
+	"fmt"
 	"testing"
 
-	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/Higins/go_blog2/domain"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/suite"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 )
 
-func TestSave(t *testing.T) {
-	var mock sqlmock.Sqlmock
-
-	blogInsert := &domain.Blog{
-		Title: "test",
-		Body:  "b test",
-	}
-
-	const sqlInsert = `INSERT INTO "blogs" ("title","body") VALUES ($1,$2) RETURNING "blogs"."id"`
-	const newId = 1
-	mock.ExpectBegin()
-	mock.ExpectQuery(regexp.QuoteMeta(sqlInsert)).
-		WithArgs(blogInsert.Title, blogInsert.Body).
-		WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(newId))
-	mock.ExpectCommit()
+type blogRepositoryTestSuite struct {
+	suite.Suite
+	db    *gorm.DB
+	badDB *gorm.DB
 }
 
-func TestFindAll(t *testing.T) {
-	var mock sqlmock.Sqlmock
-	const sqlSelectAll = `SELECT * FROM "blogs"`
-	mock.ExpectQuery(sqlSelectAll).WillReturnRows(sqlmock.NewRows(nil))
+func (s *blogRepositoryTestSuite) SetupTest() {
+	var err error
+	s.db, err = gorm.Open(sqlite.Open("../../blog.db"), &gorm.Config{})
+	err = s.db.AutoMigrate(domain.Blog{})
+	defer s.db.Migrator().DropTable(domain.Blog{})
+
+	if err != nil {
+		fmt.Println("failed to connect database")
+		panic(err)
+	}
+
+	s.badDB, err = gorm.Open(sqlite.Open("../../blogBAD.db"), &gorm.Config{})
+	if err != nil {
+		fmt.Println("failed to connect database")
+		panic(err)
+	}
+
+}
+func (s *blogRepositoryTestSuite) TestSaveBadDB(t *testing.T) {
+	blogRepo := NewBlogRepository(s.badDB)
+	post := domain.Blog{
+		Title: "test",
+		Body:  "body",
+	}
+	blog, err := blogRepo.Save(post)
+
+	require.Nil(t, err)
+	require.Empty(t, blog)
+
+}
+func (s *blogRepositoryTestSuite) TestSaveGoodDB(t *testing.T) {
+	blogRepo := NewBlogRepository(s.db)
+	post := domain.Blog{
+		Title: "test",
+		Body:  "body",
+	}
+	blog, err := blogRepo.Save(post)
+
+	require.NoError(t, err)
+	assert.Equal(t, "test", blog.Title)
+	assert.Equal(t, "body", blog.Body)
+	assert.NotZero(t, blog.ID)
+
 }

@@ -5,25 +5,78 @@ import (
 
 	"github.com/Higins/go_blog2/domain"
 	"github.com/stretchr/testify/assert"
+	"gorm.io/gorm"
 )
 
 func TestSave(t *testing.T) {
-	newBlog := domain.Blog{
-		Title: "Test tájtül",
-		Body:  "Test bódi",
+	oldBlog := domain.Blog{
+		Comment: []domain.Comment(nil),
+		Title:   "Test tájtül",
+		Body:    "Test bódi",
+		Model: gorm.Model{
+			ID: 1,
+		},
 	}
-	saveBlog := new(domain.MockBlogRepository)
-
-	saveBlog.On("Save", newBlog).Return(domain.Blog{Title: "Test tájtül", Body: "Test bódi"}, nil)
-	saveBlog.On("GetBlogById", 1).Return(true, nil)
-	blog := NewBlogUsecase(&domain.MockBlogRepository{})
-	blog.SaveBlog(domain.BlogApi{Title: "Test tájtül", Body: "Test bódi"})
-
-	assert := assert.New(t)
-	assert.Equal(domain.BlogApi{Title: "Test tájtül", Body: "Test bódi"}, blog, "ok")
+	newBlog := domain.Blog{
+		Comment: []domain.Comment(nil),
+		Title:   "Test tájtül updated",
+		Body:    "Test bódi",
+		Model: gorm.Model{
+			ID: 1,
+		},
+	}
+	saveBlog := domain.MockBlogRepository{}
+	saveBlog.On("Save", newBlog).Return(newBlog, nil)
+	saveBlog.On("GetBlogById", 1).Return(oldBlog, nil)
+	blog := NewBlogUsecase(&saveBlog)
+	err := blog.SaveBlog(domain.BlogApi{Title: "Test tájtül updated", Body: "Test bódi", ID: 1})
+	assert.Nil(t, err)
 
 }
+func TestSaveNewblog(t *testing.T) {
+	oldBlog := domain.Blog{
+		Comment: []domain.Comment(nil),
+		Title:   "Test tájtül new blog",
+		Body:    "Test bódi",
+		Model: gorm.Model{
+			ID: 1,
+		},
+	}
+	newBlog := domain.Blog{
+		Comment: []domain.Comment(nil),
+		Title:   "Test tájtül new blog",
+		Body:    "Test bódi",
+	}
+	saveBlog := domain.MockBlogRepository{}
+	saveBlog.On("Save", newBlog).Return(newBlog, nil)
+	saveBlog.On("GetBlogById", 1).Return(oldBlog, nil)
+	blog := NewBlogUsecase(&saveBlog)
+	err := blog.SaveBlog(domain.BlogApi{Title: "Test tájtül new blog", Body: "Test bódi", ID: 1})
+	assert.Nil(t, err)
 
+}
+func TestSaveNewblogAndGetBadBlog(t *testing.T) {
+	oldBlog := domain.Blog{
+		Comment: []domain.Comment(nil),
+		Title:   "Test tájtül bad blog id",
+		Body:    "Test bódi",
+		Model: gorm.Model{
+			ID: 2,
+		},
+	}
+	newBlog := domain.Blog{
+		Comment: []domain.Comment(nil),
+		Title:   "Test tájtül new blog",
+		Body:    "Test bódi",
+	}
+	saveBlog := domain.MockBlogRepository{}
+	saveBlog.On("Save", newBlog).Return(newBlog, nil)
+	saveBlog.On("GetBlogById", 1).Return(oldBlog, nil)
+	blog := NewBlogUsecase(&saveBlog)
+	err := blog.SaveBlog(domain.BlogApi{Title: "Test tájtül bad blog id", Body: "Test bódi", ID: 1})
+	assert.Nil(t, err)
+
+}
 func TestFindAll(t *testing.T) {
 	findAllBlog := new(domain.MockBlogRepository)
 

@@ -21,10 +21,11 @@ func NewBlogUsecase(blog domain.BlogRepository) domain.BlogUseCase {
 func (u *BlogUsecase) SaveBlog(blog domain.BlogApi) error {
 	var blogDb domain.Blog
 	if blog.ID > 0 {
-		blogDb, err := u.blogRepository.GetBlogById(blog.ID)
+		existingBlog, err := u.blogRepository.GetBlogById(blog.ID)
 		if err != nil || blogDb.ID <= 0 {
 			return err
 		}
+		blogDb = existingBlog
 	}
 	blogDb.Title = blog.Title
 	blogDb.Body = blog.Body
