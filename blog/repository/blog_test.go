@@ -62,3 +62,34 @@ func (s *blogRepositoryTestSuite) TestSaveGoodDB(t *testing.T) {
 	assert.NotZero(t, blog.ID)
 
 }
+
+func (s *blogRepositoryTestSuite) TestFindAll(t *testing.T) {
+	blogRepo := NewBlogRepository(s.db)
+	posts := []domain.Blog{
+		{Title: "Test1", Body: "Body1"},
+		{Title: "Test2", Body: "Body2"},
+		{Title: "Test3", Body: "Body3"},
+	}
+
+	for _, post := range posts {
+		s.db.Create(&post)
+	}
+
+	blog, err := blogRepo.FindAll()
+	require.NoError(t, err)
+	assert.Equal(t, blog, posts)
+
+}
+
+func (s *blogRepositoryTestSuite) TestGetBlogById(t *testing.T) {
+	blogRepo := NewBlogRepository(s.db)
+	post := domain.Blog{
+		Title: "test getblogidby",
+		Body:  "body",
+	}
+	blog, err := blogRepo.Save(post)
+	require.NoError(t, err)
+	assert.Equal(t, "test getblogidby", blog.Title)
+	assert.Equal(t, "body", blog.Body)
+	assert.NotZero(t, blog.ID)
+}
