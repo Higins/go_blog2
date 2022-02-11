@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  goblog:
+    build: .
+    container_name: goblog
+    restart: always
+    ports: 
+      - "8089:8080"
+    volumes:
+      - ./blog.db:/goblog/blog.db:rw
